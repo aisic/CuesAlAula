@@ -1,0 +1,136 @@
+/* css/landing.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f8fafc; /* Gris clar fluid com la resta de l'app */
+    color: #0f172a;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.landing-wrapper {
+    max-width: 1100px;
+    width: 100%;
+}
+
+/* --- Capçalera --- */
+.landing-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.landing-header h1 {
+    font-size: 2.5rem;
+    color: #1e293b;
+    margin-bottom: 12px;
+    font-weight: 800;
+}
+
+.landing-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+/* --- Graella de Targetes --- */
+.landing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.landing-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.landing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.card-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
+
+.landing-card h2 {
+    font-size: 1.5rem;
+    color: #1e293b;
+    margin-bottom: 15px;
+}
+
+.landing-card p {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    flex-grow: 1; /* Estira el text perquè els botons quedin alineats */
+}
+
+/* --- Botons Dinàmics --- */
+.landing-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.landing-btn:active {
+    transform: scale(0.98);
+}
+
+/* Colors de botons per perfils */
+.btn-alumno {
+    background-color: #2563eb; /* Blau corporatiu d'alumnes */
+    color: white;
+}
+.btn-alumno:hover { background-color: #1d4ed8; }
+
+.btn-profesor {
+    background-color: #059669; /* Verd esmeralda per al panell actiu */
+    color: white;
+}
+.btn-profesor:hover { background-color: #047857; }
+
+.btn-projector {
+    background-color: #475569; /* Gris projector neutre */
+    color: white;
+}
+.btn-projector:hover { background-color: #334155; }
+
+/* --- Footer --- */
+.landing-footer {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 25px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .landing-header h1 { font-size: 2rem; }
+    .landing-grid { gap: 20px; }
+}

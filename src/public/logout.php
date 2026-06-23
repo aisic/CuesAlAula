@@ -4,7 +4,7 @@ session_start();
 
 // Detectem quin tipus d'usuari era abans d'esborrar (per saber on redirigir)
 $era_profesor = false;
-$profesores_autorizados = ['tu_correo_profesor@institut.cat', 'coordinador@institut.cat']; // Mateixa llista que seguridad_profesor.php
+$profesores_autorizados = ['isaac.gonzalo@itb.cat', 'coordinacio@institut.cat']; // Mateixa llista que seguridad_profesor.php
 
 if (isset($_SESSION['alumno_email']) && in_array($_SESSION['alumno_email'], $profesores_autorizados)) {
     $era_profesor = true;
