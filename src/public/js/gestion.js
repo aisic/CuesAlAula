@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnNoApte = document.getElementById('btn-no-apte');
     if (btnNoApte) btnNoApte.addEventListener("click", () => avaluaAlumne('no_apte'));
 
+    const btnPresentat = document.getElementById('btn-presentat');
+    if (btnPresentat) {
+    btnPresentat.addEventListener("click", alumneSHePresentat);
+}
     // Càrrega inicial de dades i configuració del bucle de refresc (4 segons)
     carregarDadesPanell();
     setInterval(carregarDadesPanell, 4000);
@@ -43,11 +47,15 @@ async function carregarDadesPanell() {
 
         // 2. Mostrar o amagar zona d'avaluació de test de manera modular
         const zonaAvalua = document.getElementById('zona-avalua');
+        const zonaTemps = document.getElementById('zona-temps');
+        
         if (numActual !== '--') {
             zonaAvalua.classList.remove('hidden');
         } else {
             zonaAvalua.classList.add('hidden');
-            aturarTemporitzador();
+            if (!zonaTemps.classList.contains('hidden')) {
+                aturarTemporitzador();
+                }
         }
 
         // 3. Actualitzar botó de bloqueig/obertura de cua
@@ -167,4 +175,23 @@ async function avaluaAlumne(resultatTest) {
     } catch (error) {
         console.error("Error a l'avaluar l'alumne:", error);
     }
+}
+
+// Afegeix aquesta funció a js/gestion.js
+function alumneSHePresentat() {
+    console.log("L'alumne ha arribat a temps. Aturant compte enrere.");
+    
+    // 1. Aturem el setInterval immediatament perquè no segueixi restant temps
+    clearInterval(temporitzador);
+    
+    // 2. Amaguem la caixa del compte enrere i la barra vermella
+    const zonaTemps = document.getElementById('zona-temps');
+    if (zonaTemps) zonaTemps.classList.add('hidden');
+    
+    // 3. Ens assegurem que la zona d'avaluació (Apte/No Apte) es queda visible
+    const zonaAvalua = document.getElementById('zona-avalua');
+    if (zonaAvalua) zonaAvalua.classList.remove('hidden');
+    
+    // Opcional: Podem avisar l'usuari amb un petit canvi visual o log
+    document.getElementById('text-estat-torn').innerHTML = "🟢 <span style='color:#16a34a;'>Alumne present a la taula</span>";
 }

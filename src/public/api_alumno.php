@@ -27,21 +27,29 @@ $asignatura_id = 1;
 $accio = $_GET['accio'] ?? 'estat';
 
 // --- ACCIÓ 1: OBTENIR ESTAT ---
+// --- ACCIÓ 1: OBTENIR ESTAT (Corregida) ---
 if ($accio === 'estat') {
-    // Mirem si l'alumne té un torn actiu ('esperando' o 'atendiendo')
-    $stmt = $pdo->prepare("SELECT * FROM turnos WHERE email_alumno = ? AND asignatura_id = ? AND estado IN ('esperando', 'atendiendo') LIMIT 1");
-    $stmt->execute([$email, $asignatura_id]);
-    $turno_actual = $stmt->fetch();
+    // 1. Primer de tot mirem l'estat general de la cua (Independent de l'alumne)
     $stmt_cua = $pdo->prepare("SELECT cola_abierta FROM asignaturas WHERE id = ?");
     $stmt_cua->execute([$asignatura_id]);
     $cola_abierta = $stmt_cua->fetchColumn();
 
+    // 2. Després mirem si l'alumne té un torn actiu
+    $stmt = $pdo->prepare("SELECT * FROM turnos WHERE email_alumno = ? AND asignatura_id = ? AND estado IN ('esperando', 'atendiendo') LIMIT 1");
+    $stmt->execute([$email, $asignatura_id]);
+    $turno_actual = $stmt->fetch();
+
+    // 3. Cas A: Si l'alumne NO està a la cua, enviem l'estat de 'cola_abierta' igualment!
     if (!$turno_actual) {
-        echo json_encode(['en_cua' => false]);
+        echo json_encode([
+            'en_cua' => false,
+            'success' => true,
+            'cola_abierta' => (int)$cola_abierta // 👈 Ara el JS sí que rebrà la dada per habilitar el botó!
+        ]);
         exit;
     }
 
-    // Saber quants té al davant (basat en posicion_cola)
+    // 4. Cas B: Si l'alumne SÍ que està a la cua, enviem tota la informació dels torns
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM turnos WHERE asignatura_id = ? AND estado = 'esperando' AND posicion_cola < ?");
     $stmt->execute([$asignatura_id, $turno_actual['posicion_cola']]);
     $alumnes_davant = $stmt->fetchColumn();
@@ -56,8 +64,8 @@ if ($accio === 'estat') {
         'el_meu_torn' => $turno_actual['turno_numero'],
         'estat_actual' => $turno_actual['estado'],
         'alumnes_davant' => $alumnes_davant,
-	'temps_estimat' => $temps_estimat,
-	'success' => true,
+	    'temps_estimat' => $temps_estimat,
+	    'success' => true,
         'cola_abierta' => (int)$cola_abierta, // 1 si està oberta, 0 si està tancada
     // ... la resta de dades que ja enviaves (turno_actual, el_meu_torn, posicion, etc.) ...
     ]);
