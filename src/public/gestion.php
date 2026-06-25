@@ -88,6 +88,7 @@ require_once 'seguridad_profesor.php'; // Protegeix la vista HTML
     </div>
 
 </div>
+</div>
 
         <div class="card">
             <div class="card-title">Alumnes en espera</div>
