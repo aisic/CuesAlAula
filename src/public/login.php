@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<div class="login-card">
+<div class="login-card" data-perfil="alumno">
     <h1>Accés alumne</h1>
     <p>Identifica't amb el teu correu del centre per demanar el teu torn.</p>
     
@@ -22,14 +22,6 @@
     </div>
     <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue"></div>
 
-    <!--<div class="g_id_signin"
-         data-type="standard"
-         data-size="large"
-         data-theme="outline"
-         data-text="sign_in_with"
-         data-shape="semibold"
-         data-logo_alignment="center">
-    </div>-->
 </div>
 
 <script>

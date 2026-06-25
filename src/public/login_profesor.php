@@ -6,10 +6,11 @@
     <title>Accés Docent - Gestió de Cues</title>
     <link href="css/login.css" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="js/login-google.js" defer></script>
 </head>
 <body>
 
-<div class="login-card">
+<div class="login-card" data-perfil="profesor">
     <h1>Accés Professors</h1>
     <p>Inicia sessió amb el teu compte docent per gestionar la cua d'alumnes.</p>
     
@@ -27,7 +28,7 @@
     <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue"></div>
 </div>
 
-<script>
+<!--<script>
     async function handleCredentialResponse(response) {
         try {
             // Reutilitzem l'api_oauth.php que ja valida el token i desa la sessió
@@ -48,7 +49,7 @@
             console.error(e);
         }
     }
-</script>
+</script>-->
 </body>
 </html>
 
