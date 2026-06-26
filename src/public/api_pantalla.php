@@ -28,7 +28,7 @@ try {
 $asignatura_id = 1;
 
 // 2. Obtener nombre de la asignatura
-$stmt = $pdo->prepare("SELECT nombre FROM asignaturas WHERE id = ?");
+$stmt = $pdo->prepare("SELECT CodiModul_RA FROM RAs WHERE id = ?");
 $stmt->bindValue(1, $asignatura_id, PDO::PARAM_INT);
 $stmt->execute();
 $asignatura = $stmt->fetchColumn() ?: "Sin Asignatura";
@@ -57,7 +57,7 @@ $tiempo_medio_res = $stmt->fetch();
 $tiempo_medio = isset($tiempo_medio_res['t_medio']) ? round($tiempo_medio_res['t_medio']) . " min" : "0 min";
 
 // 6. Consultem si la cua està oberta o tancada
-$stmt_cua = $pdo->prepare("SELECT cola_abierta FROM asignaturas WHERE id = ?");
+$stmt_cua = $pdo->prepare("SELECT cola_abierta FROM RAs WHERE id = ?");
 $stmt_cua->execute([$asignatura_id]);
 $cola_abierta = $stmt_cua->fetchColumn();
 

@@ -28,7 +28,7 @@ $accio = $_GET['accio'] ?? '';
 // --- ACCIÓ 1: OBTENIR ESTAT ACTUAL DEL PANNELL ---
 if ($accio === 'estat') {
     // 1. Estat de la cua (Oberta/Tancada)
-    $stmt = $pdo->prepare("SELECT nombre, cola_abierta FROM asignaturas WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT CodiModul_RA, cola_abierta FROM RAs WHERE id = ?");
     $stmt->execute([$asignatura_id]);
     $asignatura = $stmt->fetch();
 
@@ -49,7 +49,7 @@ if ($accio === 'estat') {
 
     echo json_encode([
         'success' => true,
-        'asignatura' => $asignatura['nombre'],
+        'asignatura' => $asignatura['CodiModul_RA'],
         'cola_abierta' => $asignatura['cola_abierta'],
         'atendiendo' => $atendiendo,
         'en_espera' => $en_espera,
@@ -62,7 +62,7 @@ if ($accio === 'toggle_cua' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     $nou_estat = $input['estat'] ? 1 : 0;
 
-    $stmt = $pdo->prepare("UPDATE asignaturas SET cola_abierta = ? WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE RAs SET cola_abierta = ? WHERE id = ?");
     $stmt->execute([$nou_estat, $asignatura_id]);
     echo json_encode(['success' => true]);
 }
@@ -72,8 +72,8 @@ if ($accio === 'siguiente' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si s'ha esgotat el temps o el professor salta sense avaluar, marquem com a 'no_apte' i estat 'finalizado'
     $stmt = $pdo->prepare("
         UPDATE turnos 
-        SET estado = 'finalizado', resultado_evaluacion = 'no_apte', hora_fin_atencion = NOW(), posicion_cola = 0 
-        WHERE asignatura_id = ? AND estado = 'atendiendo' AND resultado_evaluacion IS NULL
+        SET estado = 'finalizado', resultat_prova = 'no_apte', hora_fin_atencion = NOW(), posicion_cola = 0 
+        WHERE asignatura_id = ? AND estado = 'atendiendo'
     ");
     $stmt->execute([$asignatura_id]);
 
@@ -118,7 +118,7 @@ if ($accio === 'finalitzar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("
             UPDATE turnos 
             SET estado = 'atendido', 
-                resultado_evaluacion = ?, 
+                resultat_prova = ?, 
                 pregunta = ?, 
                 respuesta = ?, 
                 hora_fin_atencion = NOW(),

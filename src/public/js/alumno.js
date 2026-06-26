@@ -1,3 +1,4 @@
+// js/alumno.js
 let jaNotificat = false;
 
 // Demanar permís per a les notificacions només entrar
@@ -50,7 +51,6 @@ async function comprovarEstatCua() {
                     botoApuntar.style.opacity = "1";
                     botoApuntar.style.cursor = "pointer";
                     botoApuntar.style.pointerEvents = "auto";
-                    botoApuntar.style.backgroundColor = ""; // Netegem color de xoc per si de cas
                 }
             } else {
                 textEstat.textContent = "🔴 LA CUA ESTÀ TANCADA PEL PROFESSOR";
@@ -69,17 +69,35 @@ async function comprovarEstatCua() {
         }
 
     } catch (error) {
-        console.error("Error en la connexió", error);
+        console.error("Error en la connexió al comprovar estat:", error);
     }
 }
 
+// 🟢 FUNCIÓ SECURE: Gestiona l'acció controlant els errors de JSON retornats pel PHP
 async function accionarCua(accio) {
     try {
         const resposta = await fetch(`api_alumno.php?accio=${accio}`, { method: 'POST' });
-        await resposta.json();
-        comprovarEstatCua(); 
+        
+        // Llegim el text de resposta directament per avaluar si està buit o malformat
+        const textResposta = await resposta.text();
+        
+        let dades;
+        try {
+            dades = JSON.parse(textResposta);
+        } catch (e) {
+            console.error("El servidor ha retornat un format no JSON:", textResposta);
+            alert("Error crític del servidor: La resposta no és un JSON vàlid.");
+            return;
+        }
+
+        if (dades && dades.success) {
+            // Si la base de dades s'ha guardat correctament, actualitzem la vista de seguida
+            await comprovarEstatCua(); 
+        } else {
+            alert("Atenció: " + (dades.error || "No s'ha pogut processar la petició."));
+        }
     } catch (error) {
-        console.error("Error al processar acció", error);
+        console.error("Error de xarxa en processar acció:", error);
     }
 }
 
@@ -112,6 +130,6 @@ function llencarNotificacio() {
     }
 }
 
-// Inicialització del Polling
+// Inicialització del Polling actiu
 comprovarEstatCua();
 setInterval(comprovarEstatCua, 3000);

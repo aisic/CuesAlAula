@@ -7,7 +7,7 @@ if (!isset($_SESSION['alumno_email'])) {
     header("Location: login.php");
     exit;
 }
-$asignatura_nombre = "C037"; // Això vindrà de la teva BD
+$asignatura_nombre = "C037_RA1"; // Això vindrà de la teva BD
 ?>
 <!DOCTYPE html>
 <html lang="ca">

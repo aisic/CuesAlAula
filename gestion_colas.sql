@@ -26,12 +26,12 @@ USE `gestion_colas`;
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `asignaturas`
+-- Estructura de tabla para la tabla `RAs`
 --
 
-CREATE TABLE `asignaturas` (
+CREATE TABLE `RAs` (
   `id` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
+  `CodiModul_RA` varchar(100) NOT NULL,
   `cola_abierta` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -76,9 +76,9 @@ CREATE TABLE `turnos` (
 --
 
 --
--- Indices de la tabla `asignaturas`
+-- Indices de la tabla `RAs`
 --
-ALTER TABLE `asignaturas`
+ALTER TABLE `RAs`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -99,9 +99,9 @@ ALTER TABLE `turnos`
 --
 
 --
--- AUTO_INCREMENT de la tabla `asignaturas`
+-- AUTO_INCREMENT de la tabla `RAs`
 --
-ALTER TABLE `asignaturas`
+ALTER TABLE `RAs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -124,7 +124,7 @@ ALTER TABLE `turnos`
 -- Filtros para la tabla `turnos`
 --
 ALTER TABLE `turnos`
-  ADD CONSTRAINT `turnos_ibfk_1` FOREIGN KEY (`asignatura_id`) REFERENCES `asignaturas` (`id`);
+  ADD CONSTRAINT `turnos_ibfk_1` FOREIGN KEY (`asignatura_id`) REFERENCES `RAs` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

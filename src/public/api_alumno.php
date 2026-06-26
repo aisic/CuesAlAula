@@ -20,17 +20,16 @@ try {
      exit;
 }
 
-
 $email = $_SESSION['alumno_email'];
 $nombre = $_SESSION['alumno_nombre'];
-$asignatura_id = 1; 
+$asignatura_id = 1;
 $accio = $_GET['accio'] ?? 'estat';
 
 // --- ACCIÓ 1: OBTENIR ESTAT ---
 // --- ACCIÓ 1: OBTENIR ESTAT (Corregida) ---
 if ($accio === 'estat') {
     // 1. Primer de tot mirem l'estat general de la cua (Independent de l'alumne)
-    $stmt_cua = $pdo->prepare("SELECT cola_abierta FROM asignaturas WHERE id = ?");
+    $stmt_cua = $pdo->prepare("SELECT cola_abierta FROM RAs WHERE id = ?");
     $stmt_cua->execute([$asignatura_id]);
     $cola_abierta = $stmt_cua->fetchColumn();
 
@@ -71,17 +70,31 @@ if ($accio === 'estat') {
     ]);
 }
 
-// --- ACCIÓ 2: APUNTAR-SE ---
+// --- ACCIÓ 2: APUNTAR-SE (VERSIÓ COMODÍ DINÀMIC) ---
 if ($accio === 'apuntarse' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 1. Validar que la cua estigui oberta
-    $stmt = $pdo->prepare("SELECT cola_abierta FROM asignaturas WHERE id = ?");
+    
+    // 🟢 1. BRÚIXOLA: Busquem quin ID real té el teu primer registre a la taula RAs
+    $stmt_id_real = $pdo->query("SELECT id FROM RAs LIMIT 1");
+    $id_real_ra = $stmt_id_real->fetchColumn();
+
+    // Si la taula RAs està completament buida, avisem de seguida
+    if (!$id_real_ra) {
+        echo json_encode(['success' => false, 'error' => 'La taula RAs està buida a la base de dades. Insereix un mòdul abans.']);
+        exit;
+    }
+
+    // A partir d'aquí utilitzem l'ID real que hem trobat a la BD, sigui el que sigui (1, 2, o un text)
+    $asignatura_id = $id_real_ra;
+
+    // 2. Validar que la cua estigui oberta
+    $stmt = $pdo->prepare("SELECT cola_abierta FROM RAs WHERE id = ?");
     $stmt->execute([$asignatura_id]);
     if ($stmt->fetchColumn() == 0) {
         echo json_encode(['success' => false, 'error' => 'La cua està tancada pel professor']);
         exit;
     }
 
-    // 2. Evitar duplicats actius
+    // 3. Evitar duplicats actius
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM turnos WHERE email_alumno = ? AND asignatura_id = ? AND estado IN ('esperando', 'atendiendo')");
     $stmt->execute([$email, $asignatura_id]);
     if ($stmt->fetchColumn() > 0) {
@@ -89,7 +102,7 @@ if ($accio === 'apuntarse' && $_SERVER['REQUEST_METHOD'] === 'POST') {
          exit;
     }
 
-    // 3. Generar el següent número de torn i posició
+    // 4. Generar el següent número de torn i posició
     $stmt = $pdo->prepare("SELECT MAX(turno_numero) FROM turnos WHERE asignatura_id = ? AND DATE(fecha_registro) = CURDATE()");
     $stmt->execute([$asignatura_id]);
     $ultim_torn = $stmt->fetchColumn() ?: 0;
@@ -100,11 +113,29 @@ if ($accio === 'apuntarse' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $ultima_posicion = $stmt->fetchColumn() ?: 0;
     $nova_posicio = $ultima_posicion + 1;
 
-    // 4. Insertar a la base de dades
-    $stmt = $pdo->prepare("INSERT INTO turnos (asignatura_id, nombre_alumno, codigo_alumno, email_alumno, turno_numero, posicion_cola, estado) VALUES (?, ?, 'ALUMNE', ?, ?, ?, 'esperando')");
-    $stmt->execute([$asignatura_id, $nombre, $email, $nou_torn, $nova_posicio]);
+    try {
+        // 5. L'INSERT DINÀMIC SEGUR (Té 5 interrogants, tornant a posar el ? a asignatura_id)
+        $stmt = $pdo->prepare("
+            INSERT INTO turnos (asignatura_id, nombre_alumno, codigo_alumno, email_alumno, turno_numero, posicion_cola, estado, fecha_registro) 
+            VALUES (?, ?, 'ALUMNE', ?, ?, ?, 'esperando', NOW())
+        ");
+        
+        // Passem el valor real i exacte que hem llegit directament de la teva base de dades
+        $stmt->execute([
+            $asignatura_id,  // 1r '?' -> El valor real detectat automàticament
+            $nombre,         // 2n '?'
+            $email,          // 3r '?'
+            $nou_torn,       // 4t '?'
+            $nova_posicio    // 5è '?'
+        ]);
 
-    echo json_encode(['success' => true]);
+        echo json_encode(['success' => true]);
+        exit;
+        
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'error' => 'Error a la BD: ' . $e->getMessage()]);
+        exit;
+    }
 }
 
 // --- ACCIÓ 3: DESAPUNTAR-SE (CANCEL·LAR) ---
