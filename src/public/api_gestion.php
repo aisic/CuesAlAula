@@ -40,9 +40,9 @@ if ($accio === 'estat') {
     $stmt->execute([$id_activitat]);
     $asignatura = $stmt->fetch();
     // 2. Alumne actualment sota atenció (🟢 RETORNA TAMBÉ L'ID DEL TORN PEL JS)
-    $stmt = $pdo->prepare("SELECT id, turno_numero, nombre_alumno FROM turnos WHERE id_activitat = ? AND estado = 'atendiendo' LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, turno_numero, id_alumne FROM turnos WHERE id_activitat = ? AND estado = 'atendiendo' LIMIT 1");
     $stmt->execute([$id_activitat]);
-    $atendiendo = $stmt->fetch() ?: ['id' => null, 'turno_numero' => '--', 'nombre_alumno' => 'Ningú'];
+    $atendiendo = $stmt->fetch() ?: ['id' => null, 'turno_numero' => '--', 'id_alumne' => null];
 
     // 3. Quants alumnes queden esperant a la cua
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM turnos WHERE id_activitat = ? AND estado = 'esperando'");
@@ -50,7 +50,7 @@ if ($accio === 'estat') {
     $en_espera = $stmt->fetchColumn();
 
     // 4. Llista de la cua actual
-    $stmt = $pdo->prepare("SELECT id, turno_numero, nombre_alumno FROM turnos WHERE id_activitat = ? AND estado = 'esperando' ORDER BY posicion_cola ASC");
+    $stmt = $pdo->prepare("SELECT id, turno_numero, id_alumne FROM turnos WHERE id_activitat = ? AND estado = 'esperando' ORDER BY posicion_cola ASC");
     $stmt->execute([$id_activitat]);
     $cua_llista = $stmt->fetchAll();
 

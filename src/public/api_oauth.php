@@ -77,8 +77,61 @@ $_SESSION['alumno_nombre'] = $nombre;
             
             $ruta_desti = 'gestion.php';
         } else {
-            // Si és un alumne, va cap a la seva cua
-            $ruta_desti = 'alumno.php';
+           // 🟢 ACCIÓ ESTUDIANT: Integració amb Google Sheets i Auto-alta a MySQL
+    $spreadsheetId = "17MPPTHw9RopnpGcJE9a8nfWSRLnbp-u1leGwft9MyGk";
+    $gid = "330754504"; // Pestanya 'estudiants'
+    $csvUrl = "https://docs.google.com/spreadsheets/d/{$spreadsheetId}/export?format=csv&gid={$gid}";
+
+    $dni_trobat = null;
+
+    // Llegim el Google Sheet en format CSV des del flux web
+    if (($handle = fopen($csvUrl, "r")) !== FALSE) {
+        fgetcsv($handle, 1000, ","); // Saltem capçaleres
+        
+        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            // Índex 1 (2a columna): Correu de l'alumne
+            // Índex 6 (7a columna / G): DNI o NIE
+            if (isset($data[1]) && trim($data[1]) === trim($email)) {
+                $dni_trobat = trim($data[6]);
+                break;
+            }
+        }
+        fclose($handle);
+    }
+
+    // Fallback de contingència si el Sheets falla o l'alumne no hi és present
+    if (empty($dni_trobat)) {
+        $dni_trobat = "TEMP_" . substr(md5($email), 0, 7);
+    }
+
+    try {
+        // Comprovem si l'alumne ja existia a MySQL
+        $stmt_cerca = $pdo->prepare("SELECT id_alumne FROM alumnes WHERE email = ? LIMIT 1");
+        $stmt_cerca->execute([$email]);
+        $id_existent = $stmt_cerca->fetchColumn();
+
+        if (!$id_existent) {
+            // Si és nou, fem l'INSERT a la taula d'alumnes usant el seu DNI/NIE real del Sheet
+            $sql_insert = "INSERT INTO alumnes (id_alumne, nom, cognoms, email, data_alta) 
+                           VALUES (?, ?, ?, ?, NOW())";
+            $stmt_insert = $pdo->prepare($sql_insert);
+            $stmt_insert->execute([
+                $dni_trobat,
+                $nombre,
+                $apellidos,
+                $email
+            ]);
+            $_SESSION['id_alumne'] = $dni_trobat;
+        } else {
+            // Si ja existia, passem el seu id_alumne real de la BD cap a la sessió
+            $_SESSION['id_alumne'] = $id_existent;
+        }
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'error' => 'Error de sincronització interna: ' . $e->getMessage()]);
+        exit;
+    }
+
+    $ruta_desti = 'alumno.php';
 }
 
 // Retornem l'èxit i la URL a la qual s'ha de dirigir el JavaScript
