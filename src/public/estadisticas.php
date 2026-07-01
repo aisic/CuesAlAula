@@ -119,9 +119,14 @@ if ($filtro_alumno || $filtro_fecha) {
 }
 
 // 5. CONSULTA D'AUDITORIA: HISTORIAL D'INCIDÈNCIES (ALUMNES COL·LATS)
-$sql_incidencias = "SELECT email_infractor, nombre_infractor, fecha_incidencia, ip_origen 
-                    FROM incidencias_acceso 
-                    ORDER BY fecha_incidencia DESC";
+$sql_incidencias = "SELECT 
+                        a.email as email_infractor, 
+                        CONCAT(a.nom_alumne, ' ', a.cognoms_alumne) as nombre_infractor, 
+                        i.fecha_incidencia, 
+                        i.ip_origen 
+                    FROM incidencias_acceso i
+                    INNER JOIN alumnes a ON i.id_alumne = a.id_alumne
+                    ORDER BY i.fecha_incidencia DESC";
 $incidencias = $pdo->query($sql_incidencias)->fetchAll();
 ?>
 <!DOCTYPE html>

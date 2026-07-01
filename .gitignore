@@ -3,3 +3,7 @@ mariadb_data/
 
 # macOS
 .DS_Store
+
+# DB Connection Config
+.env
+config/.env

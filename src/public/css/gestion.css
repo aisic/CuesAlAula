@@ -105,12 +105,12 @@ h1 {
     color: white; 
 }
 
-.btn-admin { 
+.btn-stats { 
     background-color: #6366f1; 
     color: white; 
 }
 
-.btn-admin:hover { 
+.btn-stats:hover { 
     background-color: #4f46e5; 
 }
 

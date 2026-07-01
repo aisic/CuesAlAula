@@ -32,7 +32,7 @@ if ($accio === 'estat') {
             r.cola_abierta, 
             m.nom_modul 
         FROM RAs r
-        INNER JOIN moduls m ON r.id = m.id_modul
+        INNER JOIN moduls m ON r.id_modul = m.id_modul
         WHERE r.id = ?
     ");
     $stmt->execute([$id_activitat]);

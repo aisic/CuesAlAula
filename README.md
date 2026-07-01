@@ -8,7 +8,7 @@ You can use this stack to replace your XAMPP instances. It contains a very basic
 
 **You should only use this for testing/development! It is NOT suitable for production.**
 
-## Configuration
+## Configuration (Change this info in .env and config/.env files to whatever info is suitable to your environment to include in .gitingnore)
 - Database:
   - Root user: _root_
   - Root password: _root_

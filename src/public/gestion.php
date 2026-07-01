@@ -20,7 +20,8 @@ require_once 'seguridad_profesor.php'; // Protegeix la vista HTML
         </div>
         <div class="header-actions">
             <button id="btn-lock" class="btn btn-toggle">Carregant estat...</button>
-            <a href="estadisticas.php" class="btn btn-admin">📊 Estadístiques</a>
+            <a href="estadisticas.php" class="btn btn-stats">📊 Estadístiques</a>
+            <a href="gestio_academica.php" class="btn btn-gestio">⚙️ Configuració Acadèmica</a>
             <a href="logout.php" class="btn btn-logout">🚪 Tancar Sessió</a>
         </div>
     </header>

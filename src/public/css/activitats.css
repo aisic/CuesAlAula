@@ -1,0 +1,23 @@
+/* css/activitats.css */
+body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; color: #334155; }
+.act-wrapper { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+.act-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 30px; }
+.act-header h1 { margin: 0; font-size: 1.8rem; color: #0f172a; }
+.act-header p { margin: 5px 0 0 0; color: #64748b; }
+.act-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
+.act-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.act-card h2 { margin-top: 0; font-size: 1.2rem; color: #1e293b; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; color: #475569; }
+.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+.btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; }
+.btn-back { background-color: #0f172a; color: white; }
+.btn-submit { background-color: #16a34a; color: white; width: 100%; padding: 12px; }
+.btn-danger { background-color: #dc2626; color: white; padding: 6px 12px; font-size: 0.85rem; }
+.filter-box { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+.filter-box select { padding: 8px; border-radius: 6px; width: 100%; border: 1px solid #cbd5e1; }
+.act-table { width: 100%; border-collapse: collapse; }
+.act-table th, .act-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+.act-table th { background: #f8fafc; font-weight: 600; }
+.badge-proporcio { background-color: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 9999px; font-weight: bold; font-size: 0.85rem; }
+.text-center { text-align: center !important; }
