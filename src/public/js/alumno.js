@@ -2,6 +2,7 @@
 // 🌍 ESTAT GLOBAL I CONFIGURACIÓ DE TRADUCCIONS
 // ==========================================
 let jaNotificat = false; // Controla que la notificació push del torn només s'enviï una vegada
+let idActivitatActual = null; // Variable global per controlar si l'activitat canvia
 
 window.I18n = {
     translations: {},
@@ -35,35 +36,21 @@ async function inicialitzarIdioma() {
 // ⏳ CICLE DE VIDA I DISPARADORS D'EVENTS (DOM)
 // ==========================================
 document.addEventListener("DOMContentLoaded", async () => {
-    // 1. Inicialització de l'idioma i primers selectors elementals
+    // 1. Inicialització de l'idioma
     await inicialitzarIdioma(); 
-    carregarModulsAlumne();
 
     // 2. Sol·licitud preventiva de permisos per a notificacions d'escriptori
     if ("Notification" in window && Notification.permission === "default") {
         Notification.requestPermission();
     }
-
-    // 3. Controladors d'esdeveniments per als Dropdowns Encadenats
-    document.getElementById("alum-modulo").addEventListener("change", (e) => {
-        vincularDropdownsAlumne(e.target.value, "alum-ra", "llistar_ras&id_modul=", "Primer tria un mòdul...");
-        resetearSelectorAlumne("alum-activitat", "Primer tria un RA...");
-        resetearSelectorAlumne("alum-check", "Primer tria una activitat...");
-    });
-
-    document.getElementById("alum-ra").addEventListener("change", (e) => {
-        vincularDropdownsAlumne(e.target.value, "alum-activitat", "llistar_activitats&id_ra=", "Primer tria un RA...");
-        resetearSelectorAlumne("alum-check", "Primer tria una activitat...");
-    });
-
-    document.getElementById("alum-activitat").addEventListener("change", (e) => {
-        vincularDropdownsAlumne(e.target.value, "alum-check", "llistar_checks_alumne&id_act=", "Primer tria una activitat...");
-    });
     
-    // 4. Gestor de l'enviament del formulari complet amb el check elegit
-    document.getElementById("form-demanar-torn").addEventListener("submit", enviarSollicitudTorn);
+    // 3. Gestor de l'enviament del formulari complet amb el check elegit
+    const formDemanarTorn = document.getElementById("form-demanar-torn");
+    if (formDemanarTorn) {
+        formDemanarTorn.addEventListener("submit", enviarSollicitudTorn);
+    }
 
-    // 5. Gestor per a desapuntar-se de la cua de manera immediata
+    // 4. Gestor per a desapuntar-se de la cua de manera immediata
     const btnDesapuntar = document.getElementById("desapuntarse-btn");
     if (btnDesapuntar) {
         btnDesapuntar.addEventListener("click", async () => {
@@ -71,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 6. Engegada del Polling / Sincronització en calent d'estats cada 3 segons
+    // 5. Engegada del Polling / Sincronització en calent d'estats cada 3 segons
     await comprovarEstatCua();
     setInterval(comprovarEstatCua, 3000);
 });
@@ -81,42 +68,70 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ==========================================
 
 /**
- * Revisa en bucle l'estat actual de la cua i commuta les pantalles de sol·licitud/espera
+ * Revisa en bucle l'estat actual de la cua, sincronitza títols del docent i commuta pantalles
  */
 async function comprovarEstatCua() {
     try {
-        const resposta = await fetch('api_alumno.php?accio=estat');
-        const dades = await resposta.json();
+        // --- 🅰️ SINCRO 1: Llegim dades acadèmiques del mòdul i la pràctica de l'aula (api_gestion) ---
+        const resGestion = await fetch('api_gestion.php?accio=estat');
+        const dadesGestion = await resGestion.json();
+        
+        if (dadesGestion.success) {
+            // Pintem la informació triada pel professor a la capçalera
+            const titolH1 = document.getElementById('nombre-asignatura');
+            if (titolH1) {
+                titolH1.innerHTML = `${dadesGestion.nom_modul} (${dadesGestion.asignatura})<br><small style="font-size: 1rem; color: #475569; font-weight: normal;">📖 Pràctica d'avui: ${dadesGestion.nom_practica_activa}</small>`;
+            }
+
+            // Si el professor ha canviat la pràctica activa, buidem i recarreguem els seus checks
+            if (dadesGestion.id_activitat_activa && dadesGestion.id_activitat_activa !== idActivitatActual) {
+                idActivitatActual = dadesGestion.id_activitat_activa;
+                await carregarChecksDeLaPractica(idActivitatActual);
+            }
+        }
+
+        // --- 🅱️ SINCRO 2: Llegim l'estat personal del torn de l'alumne (api_alumno) ---
+        const respostaAlumno = await fetch('api_alumno.php?accio=estat');
+        const dadesAlumno = await respostaAlumno.json();
         
         const contenidorEstat = document.getElementById('estat-cua-contenidor');
         const textEstat = document.getElementById('estat-cua-text');
         const botoApuntar = document.getElementById('apuntarse-btn'); 
 
-        // 1. Commutació dinàmica de visualitzacions segons estat de l'alumne
-        if (dades.en_cua) {
-            document.getElementById('seccio-apuntarse').classList.add('hidden');
-            document.getElementById('seccio-espera').classList.remove('hidden');
+        // Commutació dinàmica de visualitzacions d'espera / entrada de cua
+        if (dadesAlumno.en_cua) {
+            const seccioApuntar = document.getElementById('seccio-apuntarse');
+            const seccioEspera = document.getElementById('seccio-espera');
+            if (seccioApuntar) seccioApuntar.classList.add('hidden');
+            if (seccioEspera) seccioEspera.classList.remove('hidden');
             
-            document.getElementById('el-meu-torn').textContent = dades.el_meu_torn;
-            document.getElementById('alumnes-davant').textContent = dades.alumnes_davant;
-            document.getElementById('temps-estimat').textContent = dades.temps_estimat + " " + window.I18n.translate('minutes');
+            const elMeuTorn = document.getElementById('el-meu-torn');
+            const alumnesDavant = document.getElementById('alumnes-davant');
+            const tempsEstimat = document.getElementById('temps-estimat');
+            const textEstatTorn = document.getElementById('text-estat-torn');
 
-            if (dades.estat_actual === 'atendiendo') {
-                document.getElementById('text-estat-torn').innerHTML = `<span style='color:#15803d; font-weight:bold;'>${window.I18n.translate('its_your_turn')}</span>`;
+            if (elMeuTorn) elMeuTorn.textContent = dadesAlumno.el_meu_torn;
+            if (alumnesDavant) alumnesDavant.textContent = dadesAlumno.alumnes_davant;
+            if (tempsEstimat) tempsEstimat.textContent = dadesAlumno.temps_estimat + " " + window.I18n.translate('minutes');
+
+            if (dadesAlumno.estat_actual === 'atendiendo') {
+                if (textEstatTorn) textEstatTorn.innerHTML = `<span style='color:#15803d; font-weight:bold;'>${window.I18n.translate('its_your_turn')}</span>`;
                 llencarNotificacio();
             } else {
-                document.getElementById('text-estat-torn').textContent = window.I18n.translate('your_turn_is');
+                if (textEstatTorn) textEstatTorn.textContent = window.I18n.translate('your_turn_is');
                 jaNotificat = false; 
             }
         } else {
-            document.getElementById('seccio-apuntarse').classList.remove('hidden');
-            document.getElementById('seccio-espera').classList.add('hidden');
+            const seccioApuntar = document.getElementById('seccio-apuntarse');
+            const seccioEspera = document.getElementById('seccio-espera');
+            if (seccioApuntar) seccioApuntar.classList.remove('hidden');
+            if (seccioEspera) seccioEspera.classList.add('hidden');
             jaNotificat = false;
         }
 
-        // 2. Control de tancament temporitzat de la cua per part del docent
+        // Control de l'estat global de cua oberta o tancada per part del docent
         if (contenidorEstat && textEstat) {
-            if (dades.cola_abierta == 1) {
+            if (dadesAlumno.cola_abierta == 1) {
                 textEstat.textContent = window.I18n.translate('queue_is_open');
                 contenidorEstat.style.backgroundColor = "#e6f4ea";
                 contenidorEstat.style.color = "#137333";
@@ -146,19 +161,74 @@ async function comprovarEstatCua() {
         }
 
     } catch (error) {
-        console.error("Error en la connexió al comprovar estat:", error);
+        console.error("Error en la connexió global del pol·ling de l'alumne:", error);
     }
 }
 
 /**
- * 🟢 VERSIÓ MILLORADA: Executa transaccions POST contra l'API de l'alumne
- * acceptant paràmetres addicionals (ID de checks, formularis, etc.) en format JSON.
+ * Funció helper per llistar directament els criteris/checks disponibles de la pràctica triada
+ */
+/*async function carregarChecksDeLaPractica(idActivitat) {
+    const selectCheck = document.getElementById('alum-check');
+    if (!selectCheck) return;
+
+    try {
+        const res = await fetch(`api_gestio_academica.php?accio=llistar_checks&id_activitat=${idActivitat}`);
+        const dades = await res.json();
+        
+        selectCheck.innerHTML = '<option value="">-- Selecciona el criteri que defensaràs --</option>';
+        
+        if (dades.success && dades.checks) {
+            dades.checks.forEach(c => {
+                selectCheck.innerHTML += `<option value="${c.id_check}">${c.titol_check}</option>`;
+            });
+            selectCheck.disabled = false;
+        } else {
+            selectCheck.innerHTML = '<option value="">No hi ha checks associats a aquesta pràctica</option>';
+            selectCheck.disabled = true;
+        }
+    } catch(e) {
+        console.error("Error carregant criteris:", e);
+    }
+}
+*/
+
+/**
+ * Funció helper per llistar directament els criteris/checks disponibles de la pràctica triada
+ */
+async function carregarChecksDeLaPractica(idActivitat) {
+    const selectCheck = document.getElementById('alum-check');
+    if (!selectCheck) return;
+
+    try {
+        // 🌟 Redirigim la consulta cap al nou endpoint d'api_gestion.php
+        const res = await fetch(`api_gestion.php?accio=llistar_checks_alumne&id_activitat=${idActivitat}`);
+        const dades = await res.json();
+        
+        selectCheck.innerHTML = '<option value="">-- Selecciona el criteri que defensaràs --</option>';
+        
+        if (dades.success && dades.checks && dades.checks.length > 0) {
+            dades.checks.forEach(c => {
+                selectCheck.innerHTML += `<option value="${c.id_check}">${c.titol_check}</option>`;
+            });
+            selectCheck.disabled = false; // Desbloquegem el selector 🎉
+        } else {
+            selectCheck.innerHTML = '<option value="">No hi ha checks associats a aquesta pràctica</option>';
+            selectCheck.disabled = true;
+        }
+    } catch(e) {
+        console.error("Error carregant criteris:", e);
+        selectCheck.innerHTML = '<option value="">Error en carregar els criteris de l\'aula</option>';
+        selectCheck.disabled = true;
+    }
+}
+/**
+ * Executa transaccions POST contra l'API de l'alumne (demanar o deixar torn)
  */
 async function accionarCua(accio, cosDades = null) {
     try {
         const opcionsFetch = { method: 'POST' };
         
-        // Si estem enviant objectes (com el check), configurem la capçalera JSON
         if (cosDades) {
             opcionsFetch.headers = { 'Content-Type': 'application/json' };
             opcionsFetch.body = JSON.stringify(cosDades);
@@ -186,85 +256,22 @@ async function accionarCua(accio, cosDades = null) {
     }
 }
 
-// ==========================================
-// 📂 LOGÍSTICA DE DROPDOWNS ASÍNCRONS (API)
-// ==========================================
-
-/**
- * Omple el dropdown de mòduls disponibles un cop el DOM està a punt
- */
-async function carregarModulsAlumne() {
-    const res = await fetch('api_activitats.php?accio=llistar_moduls');
-    const dades = await res.json();
-    if (dades.success) {
-        const select = document.getElementById("alum-modulo");
-        let html = '<option value="">-- Selecciona un Mòdul --</option>';
-        dades.moduls.forEach(m => {
-            html += `<option value="${m.id_modul}">[${m.cicle_formatiu}] ${m.nom_modul}</option>`;
-        });
-        select.innerHTML = html;
-    }
-}
-
-/**
- * Genera el flux en cadena carregant els sub-elements basant-se en l'ID pare passat
- */
-async function vincularDropdownsAlumne(idPare, elementIdTarget, rutaAccio, textDefecte) {
-    const selectTarget = document.getElementById(elementIdTarget);
-    if (!idPare) {
-        resetearSelectorAlumne(elementIdTarget, textDefecte);
-        return;
-    }
-
-    const res = await fetch(`api_activitats.php?accio=${rutaAccio}${idPare}`);
-    const dades = await res.json();
-    
-    if (dades.success) {
-        const llista = dades.ras || dades.activitats || dades.checks || [];
-        
-        if (llista.length === 0) {
-            selectTarget.innerHTML = '<option value="">⚠️ No hi ha elements disponibles</option>';
-            selectTarget.disabled = true;
-            return;
-        }
-
-        let html = `<option value="">-- Selecciona --</option>`;
-        llista.forEach(item => {
-            const id = item.id || item.id_activitat_conceptual || item.id_check;
-            const text = item.CodiModul_RA ? `${item.CodiModul_RA} - ${item.nom_ra}` : (item.nom_activitat || item.titol_check);
-            
-            html += `<option value="${id}">${text}</option>`;
-        });
-        
-        selectTarget.innerHTML = html;
-        selectTarget.disabled = false;
-    }
-}
-
-/**
- * Neteja i bloca un selector inferior de la línia temporal si es reseteja el pare
- */
-function resetearSelectorAlumne(elementId, text) {
-    const el = document.getElementById(elementId);
-    if (el) {
-        el.innerHTML = `<option value="">${text}</option>`;
-        el.disabled = true;
-    }
-}
-
 /**
  * Intercepta el formulari de sol·licitud i envia l'alumne a la cua amb el seu check triat
  */
 async function enviarSollicitudTorn(e) {
     e.preventDefault();
     
-    const idCheck = document.getElementById("alum-check").value;
+    const selectCheck = document.getElementById("alum-check");
+    if (!selectCheck) return;
+
+    const idCheck = selectCheck.value;
     if (!idCheck) { 
         alert("Siusplau, tria el criteri concret que vols avaluar."); 
         return; 
     }
 
-    // Demanem el torn canalitzant les dades dinàmiques cap a la funció unificada
+    // Canalitzem la petició amb el cos correcte cap al backend
     await accionarCua("demanar_turno", { id_check_evaluacio: idCheck });
 }
 

@@ -13,8 +13,11 @@
         <span id="text-estat-projector">Comprovant estat de la sessió...</span>
     </div>
 
-    <header>
-        <h1 id="nombre-asignatura">Carregant assignatura...</h1>
+    <header class="projector-header" style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px;">
+        <h1 id="nombre-asignatura" style="font-size: 2.2rem; color: #1e3a8a; margin: 0; font-weight: 800; line-height: 1.3;">
+            🔄 Carregant assignatura i sessió de classe...
+        </h1>
+        <p style="margin: 5px 0 0 0; color: #64748b; font-size: 1.1rem;">Estat de la cua de consultes i defenses en viu</p>
     </header>
 
     <main>

@@ -32,9 +32,6 @@ function __($key, $fallback = '') {
     global $translations;
     return $translations[$key] ?? $fallback ?: $key;
 }
-
-// Assignatura dinàmica (en un futur vindrà heretada de la teva base de dades)
-$asignatura_nombre = "C037_RA1"; 
 ?>
 
 <!DOCTYPE html>
@@ -61,7 +58,9 @@ $asignatura_nombre = "C037_RA1";
         </form>
     </div>
 
-    <h1><?= htmlspecialchars($asignatura_nombre) ?></h1>
+    <h1 id="nombre-asignatura" style="font-size: 1.6rem; line-height: 1.3; margin-bottom: 5px; text-align: center;">
+        <?= __('loading_course', 'Carregant assignatura...') ?>
+    </h1>
     
     <div class="user-info">
         <span><?= __('connected_as') ?> <strong><?= htmlspecialchars($_SESSION['alumno_nombre']) ?></strong></span>
@@ -84,30 +83,12 @@ $asignatura_nombre = "C037_RA1";
         
         <form id="form-demanar-torn" class="form-torn" style="margin-top: 20px; text-align: left;">
             
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="alum-modulo" style="display: block; font-weight: bold; margin-bottom: 5px;"><?= __('label_modulo', 'Mòdul:') ?></label>
-                <select id="alum-modulo" required style="width: 100%;">
-                    </select>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="alum-ra" style="display: block; font-weight: bold; margin-bottom: 5px;"><?= __('label_ra', "Resultat d'Aprenentatge (RA):") ?></label>
-                <select id="alum-ra" disabled required style="width: 100%;">
-                    <option value=""><?= __('select_modulo_first', 'Primer tria un mòdul...') ?></option>
-                </select>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="alum-activitat" style="display: block; font-weight: bold; margin-bottom: 5px;"><?= __('label_activitat', 'Activitat:') ?></label>
-                <select id="alum-activitat" disabled required style="width: 100%;">
-                    <option value=""><?= __('select_ra_first', 'Primer tria un RA...') ?></option>
-                </select>
-            </div>
-
             <div class="form-group" style="margin-bottom: 20px;">
-                <label for="alum-check" style="display: block; font-weight: bold; margin-bottom: 5px;"><?= __('label_check', 'Criteri / Check a avaluar:') ?></label>
-                <select id="alum-check" name="id_check_evaluacio" disabled required style="width: 100%;">
-                    <option value=""><?= __('select_activity_first', 'Primer tria una activitat...') ?></option>
+                <label for="alum-check" style="display: block; font-weight: bold; margin-bottom: 8px;">
+                    🎯 <?= __('label_check', 'Criteri / Check a avaluar d\'aquesta pràctica:') ?>
+                </label>
+                <select id="alum-check" name="id_check_evaluacio" disabled required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                    <option value=""><?= __('loading_checks', 'Carregant criteris del professor...') ?></option>
                 </select>
             </div>
 

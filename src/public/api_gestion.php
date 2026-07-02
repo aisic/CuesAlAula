@@ -37,15 +37,23 @@ $input = json_decode(file_get_contents('php://input'), true) ?? [];
 // 🔍 ACCIÓ 1: OBTENIR ESTAT ACTUAL DEL PANELL (POLLING SINCRO DES DE FRONTEND)
 // =========================================================================
 if ($accio === 'estat') {
+    // 1. Obtenir informació del mòdul, la RA i la Pràctica Activa triada pel professor
     $stmt = $pdo->prepare("
-        SELECT r.CodiModul_RA, r.cola_abierta, m.nom_modul 
+        SELECT 
+            r.CodiModul_RA, 
+            r.cola_abierta, 
+            r.id_activitat_activa,
+            m.nom_modul,
+            act.nom_activitat AS nom_practica_activa
         FROM RAs r
         INNER JOIN moduls m ON r.id_modul = m.id_modul
+        LEFT JOIN activitats_ra act ON r.id_activitat_activa = act.id_activitat_conceptual
         WHERE r.id = ?
     ");
     $stmt->execute([$id_activitat_global]);
     $asignatura = $stmt->fetch();
 
+    // 2. Alumne actual en estat d'atenció
     $stmt = $pdo->prepare("
         SELECT 
             t.id AS id_turno, 
@@ -77,9 +85,11 @@ if ($accio === 'estat') {
         ];
     }
 
+    // 3. Recompte numèric dels alumnes totals a la cua d'espera
     $stmt = $pdo->query("SELECT COUNT(*) FROM turnos WHERE estado = 'esperando'");
     $en_espera = $stmt->fetchColumn();
 
+    // 4. Llistat complet de la cua
     $stmt = $pdo->query("
         SELECT 
             t.id AS id_turno, 
@@ -94,11 +104,14 @@ if ($accio === 'estat') {
     ");
     $cua_llista = $stmt->fetchAll();
 
+    // 🌟 Retornem els camps dinàmics per a que els llegeixin index.php, gestion.php i alumno.php
     echo json_encode([
         'success' => true,
         'asignatura' => $asignatura['CodiModul_RA'] ?? '',
         'nom_modul' => $asignatura['nom_modul'] ?? '',
         'cola_abierta' => $asignatura['cola_abierta'] ?? 0,
+        'id_activitat_activa' => $asignatura['id_activitat_activa'] ?? null,
+        'nom_practica_activa' => $asignatura['nom_practica_activa'] ?? 'Cap pràctica seleccionada',
         'atendiendo' => $atendiendo,
         'en_espera' => $en_espera,
         'cua_llista' => $cua_llista
@@ -220,6 +233,58 @@ if ($accio === 'finalitzar_apte_individual' && $_SERVER['REQUEST_METHOD'] === 'P
     } catch (Exception $e) {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => 'Error transaccional del servidor: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// =========================================================================
+// 🛠️ ACCIÓ 5: ESTABLIR CONFIGURACIÓ DE CLASSE ACTIVA (MÒDUL / RA / PRÀCTICA)
+// =========================================================================
+if ($accio === 'configurar_classe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id_practica = intval($input['id_practica'] ?? 0);
+
+    if ($id_practica <= 0) {
+        echo json_encode(['success' => false, 'error' => 'La pràctica triada no és vàlida.']);
+        exit;
+    }
+
+    // Guardem a la base de dades quina pràctica ha fixat el professor per a la sessió actual
+    $stmt = $pdo->prepare("UPDATE RAs SET id_activitat_activa = ? WHERE id = ?");
+    $stmt->execute([$id_practica, $id_activitat_global]);
+
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+// =========================================================================
+// 🎯 ACCIÓ 6: LLISTAR CHECKS DE LA PRÀCTICA ACTIVA PER AL SELECTOR DE L'ALUMNE
+// =========================================================================
+if ($accio === 'llistar_checks_alumne') {
+    $id_activitat = intval($_GET['id_activitat'] ?? 0);
+
+    if ($id_activitat <= 0) {
+        echo json_encode(['success' => false, 'checks' => []]);
+        exit;
+    }
+
+    try {
+        // Busquem els checks de l'activitat conceptual corresponent
+        // ⚠️ REVISA: Assegura't que els teus camps a la taula es diuen 'id_check', 'titol_check' i 'id_activitat_conceptual'
+        $stmt = $pdo->prepare("
+            SELECT id_check, titol_check 
+            FROM checks_activitat 
+            WHERE id_activitat_conceptual = ?
+            ORDER BY id_check ASC
+        ");
+        $stmt->execute([$id_activitat]);
+        $checks = $stmt->fetchAll();
+
+        echo json_encode([
+            'success' => true,
+            'checks' => $checks
+        ]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'checks' => [], 'error' => $e->getMessage()]);
     }
     exit;
 }

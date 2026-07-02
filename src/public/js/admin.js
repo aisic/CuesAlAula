@@ -5,10 +5,88 @@ let llistaRasActuals = [];
 let idModulSeleccionat = null;
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    const sessioModulo = document.getElementById('select-sessio-modulo');
+    const sessioRa = document.getElementById('select-sessio-ra');
+    const sessioPractica = document.getElementById('select-sessio-practica');
+    const formSessio = document.getElementById('form-sessio-activa');
+
+    // 1. En canviar el Mòdul de la Sessió, carreguem els seus RAs des de la teva API real
+    if (sessioModulo) {
+        sessioModulo.addEventListener('change', async () => {
+            const idModulo = sessioModulo.value;
+            sessioRa.innerHTML = '<option value="">Selecciona RA...</option>';
+            sessioPractica.innerHTML = '<option value="">Abans tria un RA...</option>';
+            sessioPractica.disabled = true;
+
+            if (!idModulo) { sessioRa.disabled = true; return; }
+
+            try {
+                // Utilitzem el teu fitxer real 'api_gestio_academica.php'
+                const res = await fetch(`api_gestio_academica.php?accio=llistar_ras&id_modul=${idModulo}`);
+                const dades = await res.json();
+                
+                if (dades.success && dades.ras) {
+                    dades.ras.forEach(ra => {
+                        sessioRa.innerHTML += `<option value="${ra.id}">${ra.CodiModul_RA} - ${ra.nom_ra}</option>`;
+                    });
+                    sessioRa.disabled = false;
+                }
+            } catch (e) { console.error("Error carregant RAs a la sessió:", e); }
+        });
+    }
+
+    // 2. En canviar el RA, carreguem les seves Pràctiques/Activitats
+    if (sessioRa) {
+        sessioRa.addEventListener('change', async () => {
+            const idRa = sessioRa.value;
+            sessioPractica.innerHTML = '<option value="">Selecciona Pràctica...</option>';
+
+            if (!idRa) { sessioPractica.disabled = true; return; }
+
+            try {
+                // Crida ajustada a la teva API acadèmica
+                const res = await fetch(`api_gestio_academica.php?accio=llistar_activitats&id_ra=${idRa}`);
+                const dades = await res.json();
+                
+                // Si la teva API retorna directament l'array o va dins d'un node (ex: dades.activitats)
+                const llistaActivitats = Array.isArray(dades) ? dades : (dades.activitats || []);
+                
+                llistaActivitats.forEach(act => {
+                    sessioPractica.innerHTML += `<option value="${act.id_activitat_conceptual}">${act.nom_activitat}</option>`;
+                });
+                sessioPractica.disabled = false;
+            } catch (e) { console.error("Error carregant activitats:", e); }
+        });
+    }
+
+    // 3. Enviament de la configuració a l'api_gestion per activar-la a tota l'aula
+    if (formSessio) {
+        formSessio.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const idPractica = sessioPractica.value;
+
+            try {
+                const res = await fetch('api_gestion.php?accio=configurar_classe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_practica: idPractica })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert("🎯 Sessió configurada amb èxit! Totes les pantalles s'han actualitzat.");
+                } else {
+                    alert("Error: " + result.error);
+                }
+            } catch (err) { console.error("Error al desar la configuració de classe:", err); }
+        });
+    }
+
     // Carregar dropdowns inicials
     carregarModuls();
 
-    // Event listeners de formularis
+    // Event listeners de formularis vells
     document.getElementById("form-modulo").addEventListener("submit", crearModulo);
     document.getElementById("form-ra").addEventListener("submit", crearRA);
     
@@ -23,27 +101,43 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function carregarModuls() {
-    const res = await fetch('api_gestio_academica.php?accio=llistar_moduls');
-    const dades = await res.json();
-    if(dades.success) {
-        llistaModuls = dades.moduls;
+    try {
+        const res = await fetch('api_gestio_academica.php?accio=llistar_moduls');
+        const dades = await res.json();
         
-        // Omplim els select de l'HTML
-        const selectRA = document.getElementById("ra-modulo");
-        const selectFiltre = document.getElementById("filtre-modulo");
-        
-        let opcions = '<option value="">-- Selecciona un Mòdul --</option>';
-        llistaModuls.forEach(m => {
-            opcions += `<option value="${m.id_modul}">[${m.cicle_formatiu} - ${m.curs}] ${m.nom_modul}</option>`;
-        });
-        
-        selectRA.innerHTML = opcions;
-        selectFiltre.innerHTML = opcions;
+        if (dades.success && dades.moduls) {
+            llistaModuls = dades.moduls;
+            
+            // Generem la cadena d'opcions un cop
+            let opcions = '<option value="">-- Selecciona un Mòdul --</option>';
+            llistaModuls.forEach(m => {
+                opcions += `<option value="${m.id_modul}">[${m.cicle_formatiu} - ${m.curs}] ${m.nom_modul}</option>`;
+            });
+            
+            // Forcem la injecció directa a l'HTML buscant-los un a un al moment exacte
+            const selectRA = document.getElementById("ra-modulo");
+            if (selectRA) selectRA.innerHTML = opcions;
+            
+            const selectFiltre = document.getElementById("filtre-modulo");
+            if (selectFiltre) selectFiltre.innerHTML = opcions;
+            
+            // 🌟 Forçat de seguretat per al desplegable 0 (Sessió Activa)
+            const selectSessio = document.getElementById("select-sessio-modulo");
+            if (selectSessio) {
+                selectSessio.innerHTML = opcions;
+            } else {
+                console.error("⚠️ CRÍTIC: No s'ha trobat l'element HTML 'select-sessio-modulo' al DOM.");
+            }
 
-        // Si teníem un mòdul seleccionat el mantenim
-        if (idModulSeleccionat) {
-            selectFiltre.value = idModulSeleccionat;
+            // Si teníem un mòdul seleccionat el mantenim al filtre de pesos
+            if (idModulSeleccionat && selectFiltre) {
+                selectFiltre.value = idModulSeleccionat;
+            }
+        } else {
+            console.error("L'API ha retornat success:false", dades);
         }
+    } catch (error) {
+        console.error("Error a la petició fetch de carregarModuls:", error);
     }
 }
 
@@ -81,7 +175,8 @@ function renderitzarTaulaPesos() {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td><strong>${ra.CodiModul_RA}</strong></td>
-            <td><span style="color: #64748b; font-size: 0.95rem;">${ra.nom_ra}</span></td> <td>${ra.cicle_formatiu} / ${ra.curs}</td>
+            <td><span style="color: #64748b; font-size: 0.95rem;">${ra.nom_ra}</span></td> 
+            <td>${ra.cicle_formatiu} / ${ra.curs}</td>
             <td>
                 <input type="number" class="input-table-hores" value="${hores}" min="1"
                        onchange="canviHoraLocal(${index}, this.value)">h
@@ -94,7 +189,7 @@ function renderitzarTaulaPesos() {
 
 function canviHoraLocal(index, valor) {
     llistaRasActuals[index].hores_lectives = parseInt(valor) || 0;
-    renderitzarTaulaPesos(); // Recalcula instantàniament en pantalla
+    renderitzarTaulaPesos(); 
 }
 
 async function crearModulo(e) {
@@ -115,7 +210,7 @@ async function crearModulo(e) {
     if(result.success) {
         alert("Mòdul creat correctament!");
         document.getElementById("form-modulo").reset();
-        carregarModuls(); // Refresca els dropdowns dinàmicament
+        carregarModuls(); 
     }
 }
 
@@ -141,7 +236,7 @@ async function crearRA(e) {
         document.getElementById("form-ra").reset();
         idModulSeleccionat = id_modul;
         carregarModuls();
-        carregarRasDelModulo(id_modul); // Actualitza la taula automàticament
+        carregarRasDelModulo(id_modul); 
     }
 }
 

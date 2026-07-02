@@ -37,6 +37,39 @@ if ($accio === 'llistar_ras') {
     exit;
 }
 
+// 2.1: OBTENIR ACTIVITATS D'UN RA CONCRET
+if ($accio === 'llistar_activitats') {
+    // Sanititzem l'ID que ens arriba per la URL de JavaScript
+    $id_ra = intval($_GET['id_ra'] ?? 0);
+
+    if ($id_ra <= 0) {
+        echo json_encode([]); // Retornem un array buit de seguretat si l'ID és invàlid
+        exit;
+    }
+
+    try {
+        // ⚠️ ATENCIÓ: Revisa si els teus camps de la taula 'activitats_ra' es diuen així:
+        // Es busquen les activitats conceptuals vinculades al RA indicat
+        $stmt = $pdo->prepare("
+            SELECT id_activitat_conceptual, nom_activitat 
+            FROM activitats_ra 
+            WHERE id_ra = ?
+        ");
+        $stmt->execute([$id_ra]);
+        $activitats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Retornem directament l'array d'activitats en format JSON net i polit
+        echo json_encode($activitats);
+        
+    } catch (\Exception $e) {
+        // Si hi ha un error de base de dades, evitem enviar text pla i enviem un JSON buit 
+        // perquè el JavaScript no es trenqui, o un log de l'error.
+        echo json_encode([]); 
+    }
+    exit;
+}
+
+
 // 3. CREAR NOU MÒDUL
 if ($accio === 'crear_modulo' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);

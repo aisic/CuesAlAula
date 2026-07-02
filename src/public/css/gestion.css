@@ -114,6 +114,17 @@ h1 {
     background-color: #4f46e5; 
 }
 
+.btn-gestio { 
+    background-color: #f0a15b; 
+    color: white; 
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 10px;
+    width: auto !important;
+}
 .back-btn { 
     background: #475569; 
     color: white; 

@@ -60,7 +60,16 @@ async function carregarDadesPanell() {
         }
 
         // 1. Actualització de capçaleres i comptadors textuals
-        document.getElementById('nom-asignatura').textContent = `${dades.nom_modul} (${dades.asignatura})`;
+        const textCadenaClau = `${dades.nom_modul} (${dades.asignatura}) ➔ 📖 Pràctica activa: ${dades.nom_practica_activa}`;
+
+        // 1. Sincronització a gestion.php
+        const titolGestion = document.getElementById('nom-asignatura');
+        if (titolGestion) titolGestion.textContent = textCadenaClau;
+
+        // 2. Sincronització a index.php (Pintarà exactament la mateixa cadena pública)
+        const titolIndex = document.getElementById('nombre-asignatura');
+        if (titolIndex) titolIndex.textContent = textCadenaClau;
+       // document.getElementById('nom-asignatura').textContent = `${dades.nom_modul} (${dades.asignatura})`;
         document.getElementById('total-espera').textContent = dades.en_espera;
         
         const alumneActiu = dades.atendiendo;
