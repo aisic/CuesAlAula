@@ -50,17 +50,6 @@ body {
     color: #475569;
 }
 
-.btn-apuntar {
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    width: 100%;
-}
-
 .container {
     max-width: 500px;
     margin: 30px auto;
