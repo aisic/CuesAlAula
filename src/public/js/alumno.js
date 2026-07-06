@@ -97,6 +97,7 @@ async function comprovarEstatCua() {
         const contenidorEstat = document.getElementById('estat-cua-contenidor');
         const textEstat = document.getElementById('estat-cua-text');
         const botoApuntar = document.getElementById('apuntarse-btn'); 
+        const selectCheck = document.getElementById('alum-check');
 
         // Commutació dinàmica de visualitzacions d'espera / entrada de cua
         if (dadesAlumno.en_cua) {
@@ -135,6 +136,7 @@ async function comprovarEstatCua() {
                 textEstat.textContent = window.I18n.translate('queue_is_open');
                 contenidorEstat.style.backgroundColor = "#e6f4ea";
                 contenidorEstat.style.color = "#137333";
+                selectCheck.disabled = false;
 
                 if (botoApuntar) {
                     botoApuntar.removeAttribute('disabled');
@@ -148,7 +150,8 @@ async function comprovarEstatCua() {
                 textEstat.textContent = window.I18n.translate('queue_is_closed');
                 contenidorEstat.style.backgroundColor = "#fce8e6";
                 contenidorEstat.style.color = "#c5221f";
-
+                selectCheck.disabled = true;
+                
                 if (botoApuntar) {
                     botoApuntar.setAttribute('disabled', 'true');
                     botoApuntar.disabled = true;
