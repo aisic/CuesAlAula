@@ -10,8 +10,6 @@ services:
       TZ: Europe/Bratislava
     ports:
       - "3306:3306"
-    expose:
-      - '3306'
     volumes:
       - "./mariadb_data:/var/lib/mysql"
 
@@ -26,8 +24,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8080:80"
-    expose:
-      - "8080"
 
   php-app:
     container_name: php-app
@@ -41,16 +37,14 @@ services:
       - phpmyadmin
     ports:
       - "3000:80"
-    expose:
-      - "3000"
 
   nginx-proxy:
     image: nginx:alpine
     container_name: nginx_proxy_https
     restart: always
     ports:
-      - "81:80"   # Escolta HTTP per redirigir
-      - "444:443"  # Escolta HTTPS (enllacem el port 443 de fora al 443 de dins)
+      - "80:80"   # Escolta HTTP per redirigir
+      - "443:443"  # Escolta HTTPS (enllacem el port 443 de fora al 443 de dins)
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/nginx/certs:ro
