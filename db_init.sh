@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Executant script d'inicialització de l'administrador..."
 
-mariadb -u root -p"$DB_PASSWORD" <<-EOSQL
+mariadb -u root <<-EOSQL
     USE \`$DB_NAME\`;
     INSERT INTO profesores (nombre, email, password) 
     VALUES ('Admin', '${ADMIN_EMAIL:-isaac.gonzalo@itb.cat}', 'OAUTH_LOGIN')
