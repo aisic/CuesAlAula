@@ -1,10 +1,10 @@
 #!/bin/bash
 echo "Executant script d'inicialització de l'administrador..."
-echo DB_PASSWORD: $DB_PASSWORD
-echo DB_USER: $DB_USER
-echo DB_NAME: $DB_NAME
+echo DB_PASSWORD: $MARIADB_ROOT_PASSWORD
+echo DB_USER: $MARIADB_USER
+echo DB_NAME: $MARIADB_DATABASE
 
-mariadb -u "${DB_USER:-root}" -p"${DB_PASSWORD}" "$DB_NAME" <<-EOSQL    USE gestion_colas;
+mariadb -u "${MARIADB_USER:-root}" -p"${MARIADB_ROOT_PASSWORD}" "$MARIADB_DATABASE" <<-EOSQL
     INSERT INTO profesores (nombre, email, password) 
     VALUES ('Admin', '${ADMIN_EMAIL:-isaac.gonzalo@itb.cat}', 'OAUTH_LOGIN')
     ON DUPLICATE KEY UPDATE id=id;
