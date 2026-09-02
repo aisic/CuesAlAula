@@ -55,7 +55,7 @@ services:
     depends_on:
       - php-app
 
-certbot:
+  certbot:
     image: certbot/certbot:latest
     container_name: certbot_app
     restart: unless-stopped
