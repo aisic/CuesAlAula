@@ -39,6 +39,7 @@
             
             if (resultat.success) {
                 // Si el PHP dona el vistiplau, redirigim a la pantalla de la cua
+                alert("Hola");
                 window.location.href = 'alumno.php';
             } else {
                 const errorDiv = document.getElementById('error');
