@@ -74,7 +74,7 @@ require_once 'seguridad_profesor.php';
                 </div>
                 <div class="form-group">
                     <label for="mod-nom">Nom del Mòdul:</label>
-                    <input type="text" id="mod-nom" placeholder="Ex: M03 - Programació" required>
+                    <input type="text" id="mod-nom" placeholder="Ex: C037 - Seguretat en Sistemes, xarxes i serveis" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Afegir Mòdul</button>
             </form>
