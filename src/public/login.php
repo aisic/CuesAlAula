@@ -27,6 +27,7 @@
 <script>
     // Aquesta funció s'executa automàticament quan l'alumne fa login correctament a Google
     async function handleCredentialResponse(response) {
+        alert("Hola");
         try {
             // Enviem el token rebut de Google al nostre backend de PHP per validar-lo
             const resposta = await fetch('api_oauth.php', {
@@ -39,7 +40,7 @@
             
             if (resultat.success) {
                 // Si el PHP dona el vistiplau, redirigim a la pantalla de la cua
-                alert("Hola");
+
                 window.location.href = 'alumno.php';
             } else {
                 const errorDiv = document.getElementById('error');
