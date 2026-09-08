@@ -82,8 +82,8 @@ if ($accio === 'crear_modul' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => false, 'error' => 'Dades incompletes']); exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO moduls (nom_modul, cicle_formatiu, curs, codi_modul) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$nom, $cicle, $curs]);
+    $stmt = $pdo->prepare("INSERT INTO moduls (nom_modul, cicle_formatiu, curs, CodiModul) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$nom, $cicle, $curs, $codi]);
     echo json_encode(['success' => true]);
     exit;
 }
