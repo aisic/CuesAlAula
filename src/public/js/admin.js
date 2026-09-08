@@ -196,6 +196,7 @@ async function crearModul(e) {
     e.preventDefault();
     const dades = {
         cicle: document.getElementById("mod-cicle").value,
+        codi: document.getElementById("mod-codi").value,
         curs: document.getElementById("mod-curs").value,
         nom: document.getElementById("mod-nom").value
     };
