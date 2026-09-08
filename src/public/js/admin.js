@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarModuls();
 
     // Event listeners de formularis vells
-    document.getElementById("form-modulo").addEventListener("submit", crearModulo);
+    document.getElementById("form-modulo").addEventListener("submit", crearModul);
     document.getElementById("form-ra").addEventListener("submit", crearRA);
     
     // Canvi de filtre de la taula de pesos
@@ -192,7 +192,7 @@ function canviHoraLocal(index, valor) {
     renderitzarTaulaPesos(); 
 }
 
-async function crearModulo(e) {
+async function crearModul(e) {
     e.preventDefault();
     const dades = {
         cicle: document.getElementById("mod-cicle").value,
@@ -200,7 +200,7 @@ async function crearModulo(e) {
         nom: document.getElementById("mod-nom").value
     };
 
-    const res = await fetch('api_gestio_academica.php?accio=crear_modulo', {
+    const res = await fetch('api_gestio_academica.php?accio=crear_modul', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(dades)

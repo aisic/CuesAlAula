@@ -71,7 +71,7 @@ if ($accio === 'llistar_activitats') {
 
 
 // 3. CREAR NOU MÒDUL
-if ($accio === 'crear_modulo' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($accio === 'crear_modul' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     $nom = $input['nom'] ?? '';
     $cicle = $input['cicle'] ?? '';
