@@ -76,12 +76,13 @@ if ($accio === 'crear_modul' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = $input['nom'] ?? '';
     $cicle = $input['cicle'] ?? '';
     $curs = $input['curs'] ?? '1r';
+    $codi = $input['codi'] ?? '';
 
     if(empty($nom) || empty($cicle)) {
         echo json_encode(['success' => false, 'error' => 'Dades incompletes']); exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO moduls (nom_modul, cicle_formatiu, curs) VALUES (?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO moduls (nom_modul, cicle_formatiu, curs, codi_modul) VALUES (?, ?, ?, ?)");
     $stmt->execute([$nom, $cicle, $curs]);
     echo json_encode(['success' => true]);
     exit;
