@@ -16,6 +16,40 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `alumnes`
+--
+
+DROP TABLE IF EXISTS `alumnes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `alumnes` (
+  `id_alumne` varchar(12) NOT NULL,
+  `nom_alumne` varchar(50) NOT NULL,
+  `cognoms_alumne` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  PRIMARY KEY (`id_alumne`),
+  UNIQUE KEY `correu_electronic` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `moduls`
+--
+
+DROP TABLE IF EXISTS `moduls`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `moduls` (
+  `id_modul` int(11) NOT NULL,
+  `CodiModul` varchar(10) NOT NULL,
+  `nom_modul` varchar(100) NOT NULL,
+  `cicle_formatiu` varchar(100) NOT NULL DEFAULT 'ASIX',
+  `curs` enum('1r','2n') NOT NULL DEFAULT '1r',
+  PRIMARY KEY (`id_modul`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `RAs`
 --
 
@@ -39,24 +73,6 @@ CREATE TABLE `RAs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `activitats`
---
-
-DROP TABLE IF EXISTS `activitats`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `activitats` (
-  `id_activitat` int(11) NOT NULL AUTO_INCREMENT,
-  `nom` varchar(150) NOT NULL,
-  `id_ra` int(11) NOT NULL,
-  PRIMARY KEY (`id_activitat`),
-  KEY `fk_actividades_ras` (`id_ra`),
-  CONSTRAINT `activitats_ibfk_1` FOREIGN KEY (`id_activitat`) REFERENCES `turnos` (`id_activitat`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_actividades_ras` FOREIGN KEY (`id_ra`) REFERENCES `RAs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `activitats_ra`
 --
 
@@ -70,40 +86,6 @@ CREATE TABLE `activitats_ra` (
   PRIMARY KEY (`id_activitat_conceptual`),
   KEY `id_ra` (`id_ra`),
   CONSTRAINT `activitats_ra_ibfk_1` FOREIGN KEY (`id_ra`) REFERENCES `RAs` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `alumnes`
---
-
-DROP TABLE IF EXISTS `alumnes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `alumnes` (
-  `id_alumne` varchar(12) NOT NULL,
-  `nom_alumne` varchar(50) NOT NULL,
-  `cognoms_alumne` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  PRIMARY KEY (`id_alumne`),
-  UNIQUE KEY `correu_electronic` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `checks_activitat`
---
-
-DROP TABLE IF EXISTS `checks_activitat`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `checks_activitat` (
-  `id_check` int(11) NOT NULL AUTO_INCREMENT,
-  `id_activitat_conceptual` int(11) NOT NULL,
-  `titol_check` varchar(255) NOT NULL,
-  PRIMARY KEY (`id_check`),
-  KEY `id_activitat_conceptual` (`id_activitat_conceptual`),
-  CONSTRAINT `checks_activitat_ibfk_1` FOREIGN KEY (`id_activitat_conceptual`) REFERENCES `activitats_ra` (`id_activitat_conceptual`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -126,20 +108,39 @@ CREATE TABLE `incidencias_acceso` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
 --
--- Table structure for table `moduls`
+-- Table structure for table `checks_activitat`
 --
 
-DROP TABLE IF EXISTS `moduls`;
+DROP TABLE IF EXISTS `checks_activitat`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `moduls` (
-  `id_modul` int(11) NOT NULL,
-  `CodiModul` varchar(10) NOT NULL,
-  `nom_modul` varchar(100) NOT NULL,
-  `cicle_formatiu` varchar(100) NOT NULL DEFAULT 'ASIX',
-  `curs` enum('1r','2n') NOT NULL DEFAULT '1r',
-  PRIMARY KEY (`id_modul`)
+CREATE TABLE `checks_activitat` (
+  `id_check` int(11) NOT NULL AUTO_INCREMENT,
+  `id_activitat_conceptual` int(11) NOT NULL,
+  `titol_check` varchar(255) NOT NULL,
+  PRIMARY KEY (`id_check`),
+  KEY `id_activitat_conceptual` (`id_activitat_conceptual`),
+  CONSTRAINT `checks_activitat_ibfk_1` FOREIGN KEY (`id_activitat_conceptual`) REFERENCES `activitats_ra` (`id_activitat_conceptual`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activitats`
+--
+
+DROP TABLE IF EXISTS `activitats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activitats` (
+  `id_activitat` int(11) NOT NULL AUTO_INCREMENT,
+  `nom` varchar(150) NOT NULL,
+  `id_ra` int(11) NOT NULL,
+  PRIMARY KEY (`id_activitat`),
+  KEY `fk_actividades_ras` (`id_ra`),
+  CONSTRAINT `activitats_ibfk_1` FOREIGN KEY (`id_activitat`) REFERENCES `turnos` (`id_activitat`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_actividades_ras` FOREIGN KEY (`id_ra`) REFERENCES `RAs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -265,3 +266,12 @@ CREATE TABLE `turnos` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-09-08 11:05:40
+
+-- ------------------------------------------------------
+-- 4. RELACIONS FINALS AMB ALTER TABLE
+-- ------------------------------------------------------
+
+-- Afegim ara la clau de la relació circular a RAs
+ALTER TABLE `RAs` 
+ADD CONSTRAINT `FK_activitat_activa` 
+FOREIGN KEY (`id_activitat_activa`) REFERENCES `activitats_ra` (`id_activitat_conceptual`);
