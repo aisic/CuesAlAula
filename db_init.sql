@@ -19,9 +19,10 @@
 -- Table structure for table `RAs`
 --
 
+DROP TABLE IF EXISTS `RAs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `RAs` (
+CREATE TABLE `RAs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_modul` int(11) NOT NULL,
   `CodiModul_RA` varchar(100) NOT NULL,
@@ -41,9 +42,10 @@ CREATE TABLE IF NOT EXISTS `RAs` (
 -- Table structure for table `activitats`
 --
 
+DROP TABLE IF EXISTS `activitats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `activitats` (
+CREATE TABLE `activitats` (
   `id_activitat` int(11) NOT NULL AUTO_INCREMENT,
   `nom` varchar(150) NOT NULL,
   `id_ra` int(11) NOT NULL,
@@ -58,9 +60,10 @@ CREATE TABLE IF NOT EXISTS `activitats` (
 -- Table structure for table `activitats_ra`
 --
 
+DROP TABLE IF EXISTS `activitats_ra`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `activitats_ra` (
+CREATE TABLE `activitats_ra` (
   `id_activitat_conceptual` int(11) NOT NULL AUTO_INCREMENT,
   `id_ra` int(11) NOT NULL,
   `nom_activitat` varchar(255) NOT NULL,
@@ -74,9 +77,10 @@ CREATE TABLE IF NOT EXISTS `activitats_ra` (
 -- Table structure for table `alumnes`
 --
 
+DROP TABLE IF EXISTS `alumnes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `alumnes` (
+CREATE TABLE `alumnes` (
   `id_alumne` varchar(12) NOT NULL,
   `nom_alumne` varchar(50) NOT NULL,
   `cognoms_alumne` varchar(100) NOT NULL,
@@ -90,9 +94,10 @@ CREATE TABLE IF NOT EXISTS `alumnes` (
 -- Table structure for table `checks_activitat`
 --
 
+DROP TABLE IF EXISTS `checks_activitat`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `checks_activitat` (
+CREATE TABLE `checks_activitat` (
   `id_check` int(11) NOT NULL AUTO_INCREMENT,
   `id_activitat_conceptual` int(11) NOT NULL,
   `titol_check` varchar(255) NOT NULL,
@@ -106,9 +111,10 @@ CREATE TABLE IF NOT EXISTS `checks_activitat` (
 -- Table structure for table `incidencias_acceso`
 --
 
+DROP TABLE IF EXISTS `incidencias_acceso`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `incidencias_acceso` (
+CREATE TABLE `incidencias_acceso` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_alumne` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha_incidencia` datetime DEFAULT current_timestamp(),
@@ -124,9 +130,10 @@ CREATE TABLE IF NOT EXISTS `incidencias_acceso` (
 -- Table structure for table `moduls`
 --
 
+DROP TABLE IF EXISTS `moduls`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `moduls` (
+CREATE TABLE `moduls` (
   `id_modul` int(11) NOT NULL,
   `CodiModul` varchar(10) NOT NULL,
   `nom_modul` varchar(100) NOT NULL,
@@ -140,9 +147,10 @@ CREATE TABLE IF NOT EXISTS `moduls` (
 -- Table structure for table `notes_activitats`
 --
 
+DROP TABLE IF EXISTS `notes_activitats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `notes_activitats` (
+CREATE TABLE `notes_activitats` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_alumne` varchar(12) NOT NULL,
   `id_activitat_conceptual` int(11) NOT NULL,
@@ -159,9 +167,10 @@ CREATE TABLE IF NOT EXISTS `notes_activitats` (
 -- Table structure for table `notes_alumne`
 --
 
+DROP TABLE IF EXISTS `notes_alumne`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `notes_alumne` (
+CREATE TABLE `notes_alumne` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_alumne` varchar(12) NOT NULL,
   `id_ra` int(11) NOT NULL,
@@ -178,9 +187,10 @@ CREATE TABLE IF NOT EXISTS `notes_alumne` (
 -- Table structure for table `notes_checks_alumne`
 --
 
+DROP TABLE IF EXISTS `notes_checks_alumne`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `notes_checks_alumne` (
+CREATE TABLE `notes_checks_alumne` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_alumne` varchar(12) NOT NULL,
   `id_check` int(11) NOT NULL,
@@ -202,9 +212,10 @@ CREATE TABLE IF NOT EXISTS `notes_checks_alumne` (
 -- Table structure for table `profesores`
 --
 
+DROP TABLE IF EXISTS `profesores`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `profesores` (
+CREATE TABLE `profesores` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
   `email` varchar(150) NOT NULL,
@@ -218,9 +229,10 @@ CREATE TABLE IF NOT EXISTS `profesores` (
 -- Table structure for table `turnos`
 --
 
+DROP TABLE IF EXISTS `turnos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `turnos` (
+CREATE TABLE `turnos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_activitat` int(11) NOT NULL,
   `turno_numero` int(11) NOT NULL,
@@ -252,5 +264,4 @@ CREATE TABLE IF NOT EXISTS `turnos` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-08 10:54:10
-
+-- Dump completed on 2026-09-08 11:05:40
