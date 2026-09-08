@@ -266,12 +266,3 @@ CREATE TABLE `turnos` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-09-08 11:05:40
-
--- ------------------------------------------------------
--- 4. RELACIONS FINALS AMB ALTER TABLE
--- ------------------------------------------------------
-
--- Afegim ara la clau de la relació circular a RAs
-ALTER TABLE `RAs` 
-ADD CONSTRAINT `FK_activitat_activa` 
-FOREIGN KEY (`id_activitat_activa`) REFERENCES `activitats_ra` (`id_activitat_conceptual`);
