@@ -105,7 +105,7 @@ CREATE TABLE `incidencias_acceso` (
   PRIMARY KEY (`id`),
   KEY `fk_incidencias_alumnes` (`id_alumne`),
   CONSTRAINT `fk_incidencias_alumnes` FOREIGN KEY (`id_alumne`) REFERENCES `alumnes` (`id_alumne`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -223,7 +223,7 @@ CREATE TABLE `profesores` (
   `fecha_alta` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
