@@ -136,10 +136,12 @@ async function carregarDadesPanell() {
 async function toggleCua() {
     try {
         const nouEstat = !cuaObertaActual;
-        await fetch('api_gestion.php?accio=toggle_cua', {
+
+        // Executem la petició i guardem la resposta a la variable 'resposta'
+        const resposta = await fetch('api_gestion.php?accio=toggle_cua', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+            body: JSON.stringify({ 
                 estat: nouEstat,
                 id_ra: idRaActiu
             })
@@ -148,11 +150,11 @@ async function toggleCua() {
         const resultat = await resposta.json();
 
         if (resultat.success) {
-            // Refresquem l'estat del panell immediatament
             carregarDadesPanell();
         } else {
             alert("Error en canviar l'estat de la cua: " + (resultat.error || 'Error desconegut'));
-        }    } catch (error) {
+        }
+    } catch (error) {
         console.error("Error al commutar la cua:", error);
     }
 }

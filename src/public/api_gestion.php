@@ -51,7 +51,10 @@ try {
         ");
         $stmt->execute();
         $asignatura = $stmt->fetch();
-
+        if (!$asignatura) {
+            echo json_encode(['success' => false, 'error' => 'No s\'ha trobat cap RA a la base de dades.']);
+            exit;
+        }
         // 2. Alumne actual en estat d'atencion
         $stmt = $pdo->prepare("
             SELECT t.id AS id_turno, t.turno_numero, t.id_alumne, t.id_check_evaluacio,
@@ -117,7 +120,7 @@ try {
             $stmt->execute([$nou_estat, $id_ra]);
         } else {
             // Si no s'especifica RA, apliquem el canvi a la RA que tingui la pràctica activa o a totes les RAs
-            $stmt = $pdo->prepare("UPDATE RAs SET cola_abierta = ? WHERE id_activitat_activa IS NOT NULL OR id = ?");
+            $stmt = $pdo->prepare("UPDATE RAs SET cola_abierta = ? WHERE id = (SELECT id FROM RAs ORDER BY id ASC LIMIT 1)");            $stmt->execute([$nou_estat]);
             $stmt->execute([$nou_estat]);
         }
 
