@@ -30,7 +30,7 @@ try {
 try {
 
     // Identificadors de control per defecte de l'assignatura o l'aula activa
-    $id_activitat_global = 1; 
+    // $id_activitat_global = 1; 
     $accio = $_GET['accio'] ?? '';
 
     // Captura del cos (BODY) - Només s'utilitzarà si és un JSON pur
@@ -99,14 +99,27 @@ try {
         exit;
     }
 
-    // =========================================================================
-    // 🎛️ ACCIÓ 2: COMMUTAR PERMÍS DE CUA
+   // =========================================================================
+    // 🎛️ ACCIÓ 2: COMMUTAR PERMÍS DE CUA (CORREGIT)
     // =========================================================================
     if ($accio === 'toggle_cua' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $nou_estat = !empty($input['estat']) ? 1 : 0;
-        $stmt = $pdo->prepare("UPDATE RAs SET cola_abierta = ? WHERE id = ?");
-        $stmt->execute([$nou_estat, $id_activitat_global]);
-        echo json_encode(['success' => true]);
+        // Obtenim el valor booleà enviat per JS (true / false o 1 / 0)
+        $estat_rebut = $input['estat'] ?? null;
+        $nou_estat = ($estat_rebut === true || $estat_rebut === 1 || $estat_rebut === '1') ? 1 : 0;
+
+        // Si s'envia un id_ra des de JS el farem servir, en cas contrari busquem la RA que té la pràctica activa
+        $id_ra = intval($input['id_ra'] ?? 0);
+
+        if ($id_ra > 0) {
+            $stmt = $pdo->prepare("UPDATE RAs SET cola_abierta = ? WHERE id = ?");
+            $stmt->execute([$nou_estat, $id_ra]);
+        } else {
+            // Si no s'especifica RA, apliquem el canvi a la RA que tingui la pràctica activa o a totes les RAs
+            $stmt = $pdo->prepare("UPDATE RAs SET cola_abierta = ? WHERE id_activitat_activa IS NOT NULL OR id = ?");
+            $stmt->execute([$nou_estat, $id_activitat_global]);
+        }
+
+        echo json_encode(['success' => true, 'cola_abierta' => $nou_estat]);
         exit;
     }
 

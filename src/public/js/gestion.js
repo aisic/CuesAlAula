@@ -138,8 +138,15 @@ async function toggleCua() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ estat: nouEstat })
         });
-        carregarDadesPanell();
-    } catch (error) {
+
+        const resultat = await resposta.json();
+
+        if (resultat.success) {
+            // Refresquem l'estat del panell immediatament
+            carregarDadesPanell();
+        } else {
+            alert("Error en canviar l'estat de la cua: " + (resultat.error || 'Error desconegut'));
+        }    } catch (error) {
         console.error("Error al commutar la cua:", error);
     }
 }

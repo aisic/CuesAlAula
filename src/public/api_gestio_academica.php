@@ -43,7 +43,7 @@ if ($accio === 'llistar_activitats') {
     $id_ra = intval($_GET['id_ra'] ?? 0);
 
     if ($id_ra <= 0) {
-        echo json_encode([]); // Retornem un array buit de seguretat si l'ID és invàlid
+        echo json_encode(['success' => false, 'activitats' => []]); // Retornem un array buit de seguretat si l'ID és invàlid
         exit;
     }
 
