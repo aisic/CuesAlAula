@@ -30,7 +30,7 @@ try {
 try {
 
     // Identificadors de control per defecte de l'assignatura o l'aula activa
-    // $id_activitat_global = 1; 
+    $id_activitat_global = 1; 
     $accio = $_GET['accio'] ?? '';
 
     // Captura del cos (BODY) - Només s'utilitzarà si és un JSON pur
