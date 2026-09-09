@@ -61,7 +61,8 @@ require_once 'seguridad_profesor.php';
                     <tr>
                         <th>Nom de l'Activitat</th>
                         <th>Pes ($1/N$)</th>
-                        <th>Checks definits</th> <th>Accions</th>
+                        <th>Checks definits</th>
+                        <th>Accions</th>
                     </tr>
                 </thead>
                 <tbody id="taula-activitats-body">
@@ -72,29 +73,19 @@ require_once 'seguridad_profesor.php';
             </table>
 
             <div id="bloc-crear-check" class="hidden" style="margin-top: 30px; border-top: 2px dashed #e2e8f0; padding-top: 20px;">
-                <h3 style="margin-top: 0; font-size: 1.1rem; color: #1e293b;">➕ Afegir Check a: <span id="nom-activitat-seleccionada" style="color: #2563eb;">-</span></h3>
-                <form id="form-check" class="act-form" style="display: flex; gap: 10px; align-items: flex-end;">
+                <h3 style="margin-top: 0; font-size: 1.1rem; color: #1e293b;">🛠️ Checks per a l'activitat: <span id="nom-activitat-seleccionada" style="color: #2563eb;">-</span></h3>
+                
+                <form id="form-check" class="act-form" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 20px;">
                     <input type="hidden" id="id-activitat-per-check">
                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                         <label for="input-titol-check">Descripció o criteri del check:</label>
-                        <input type="text" id="input-titol-check" placeholder="Ex: Funciona la connexió a la BD, Codi sagnat correctament..." required>
+                        <input type="text" id="input-titol-check" placeholder="Ex: Funciona la connexió a la BD..." required>
                     </div>
-                    <button type="submit" class="btn" style="background-color: #2563eb; color: white; height: 42px; padding: 0 20px;">Afegir Criteri</button>
+                    <button type="submit" class="btn" style="background-color: #2563eb; color: white; height: 42px; padding: 0 20px; width: auto;">➕ Afegir Check</button>
                 </form>
                 
-                <ul id="llista-checks-actuals" style="margin-top: 15px; padding-left: 20px; color: #475569;"></ul>
+                <ul id="llista-checks-actuals" style="list-style: none; padding: 0; margin: 0;"></ul>
             </div>
-        </div>
-    <h3 style="margin-top: 0; color: #1e293b;">🛠️ Checks per a l'activitat: <span id="nom-activitat-checks-titol" style="color:#2563eb;">-</span></h3>
-    
-    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-        <input type="text" id="input-nou-check" placeholder="Ex: El disseny de la BD està en 3ra Forma Normal" style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
-        <button onclick="crearNouCheck()" class="btn" style="background-color: #2563eb; color: white; width: auto; padding: 10px 20px;">➕ Afegir Check</button>
-    </div>
-
-    <ul id="llista-checks-actuals" style="list-style: none; padding: 0; margin: 0;">
-        </ul>
-</div>
         </div>
     </div>
 </div>
