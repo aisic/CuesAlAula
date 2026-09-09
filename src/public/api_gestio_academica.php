@@ -59,16 +59,57 @@ if ($accio === 'llistar_activitats') {
         $activitats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Retornem directament l'array d'activitats en format JSON net i polit
-        echo json_encode($activitats);
+        echo json_encode(['success' => true, 'activitats' => $activitats]);
         
     } catch (\Exception $e) {
         // Si hi ha un error de base de dades, evitem enviar text pla i enviem un JSON buit 
         // perquè el JavaScript no es trenqui, o un log de l'error.
-        echo json_encode([]); 
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]); 
     }
     exit;
 }
 
+// 2.2: ESTABLI SESSIÓ ACTIVA I OBRIR LA CUA PER TOTA L'AULA (NOU/AFEGIT)
+if ($accio === 'establir_sessio_activa' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $id_modul = intval($input['id_modul'] ?? 0);
+    $id_ra = intval($input['id_ra'] ?? 0);
+    $id_practica = intval($input['id_practica'] ?? 0);
+
+    if ($id_modul <= 0 || $id_ra <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Mòdul o RA no seleccionats']);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        // 1. Tanquem qualsevol altra cua activa de qualsevol altre RA
+        $pdo->query("UPDATE RAs SET cola_abierta = 0");
+
+        // 2. Obrim la cua per al RA seleccionat
+        $stmtRa = $pdo->prepare("UPDATE RAs SET cola_abierta = 1 WHERE id = ?");
+        $stmtRa->execute([$id_ra]);
+
+        // 3. Guardem la sessió activa global (a la taula 'configuracion' o 'sessio_activa')
+        // Si no tens una taula de configuració, pots desar-ho a la sessió o modificar la taula 'activitats_ra'
+        $stmtConfig = $pdo->prepare("
+            INSERT INTO configuracion (clave, valor) 
+            VALUES ('practica_activa', ?) 
+            ON DUPLICATE KEY UPDATE valor = VALUES(valor)
+        ");
+        $stmtConfig->execute([$id_practica]);
+
+        $pdo->commit();
+        echo json_encode(['success' => true, 'message' => 'Sessió i cua activades correctament']);
+
+    } catch (\Exception $e) {
+        $pdo->rollBack();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
+}
 
 // 3. CREAR NOU MÒDUL
 if ($accio === 'crear_modul' && $_SERVER['REQUEST_METHOD'] === 'POST') {
