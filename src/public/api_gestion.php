@@ -40,15 +40,16 @@ try {
     // 🔍 ACCIÓ 1: OBTENIR ESTAT ACTUAL DEL PANELL (POLLING SINCRO DES DE FRONTEND)
     // =========================================================================
     if ($accio === 'estat') {
-        // 1. Obtenir informació del mòdul, la RA i la Pràctica Activa
+        // Obtenim la informació del RA actiu (el que té la cua oberta o una pràctica activa)
         $stmt = $pdo->prepare("
-            SELECT r.CodiModul_RA, r.cola_abierta, r.id_activitat_activa, m.nom_modul, act.nom_activitat AS nom_practica_activa
+            SELECT r.id AS id_ra, r.CodiModul_RA, r.cola_abierta, r.id_activitat_activa, m.nom_modul, act.nom_activitat AS nom_practica_activa
             FROM RAs r
             INNER JOIN moduls m ON r.id_modul = m.id_modul
             LEFT JOIN activitats_ra act ON r.id_activitat_activa = act.id_activitat_conceptual
-            WHERE r.id = ?
+            WHERE r.cola_abierta = 1 OR r.id_activitat_activa IS NOT NULL
+            LIMIT 1
         ");
-        $stmt->execute([$id_activitat_global]);
+        $stmt->execute();
         $asignatura = $stmt->fetch();
 
         // 2. Alumne actual en estat d'atencion
@@ -87,6 +88,7 @@ try {
 
         echo json_encode([
             'success' => true,
+            'id_ra' => $asignatura['id_ra'] ?? null,
             'asignatura' => $asignatura['CodiModul_RA'] ?? '',
             'nom_modul' => $asignatura['nom_modul'] ?? '',
             'cola_abierta' => $asignatura['cola_abierta'] ?? 0,
@@ -116,10 +118,10 @@ try {
         } else {
             // Si no s'especifica RA, apliquem el canvi a la RA que tingui la pràctica activa o a totes les RAs
             $stmt = $pdo->prepare("UPDATE RAs SET cola_abierta = ? WHERE id_activitat_activa IS NOT NULL OR id = ?");
-            $stmt->execute([$nou_estat, $id_activitat_global]);
+            $stmt->execute([$nou_estat]);
         }
 
-        echo json_encode(['success' => true, 'cola_abierta' => $nou_estat]);
+        echo json_encode(['success' => true]);
         exit;
     }
 

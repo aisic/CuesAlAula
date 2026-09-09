@@ -2,6 +2,7 @@
 // 📊 ESTAT GLOBAL I CONTROL DE PANELS
 // ==========================================
 let cuaObertaActual = true;         // Estat d'obertura/tancament de la cua d'aula
+let idRaActiu = null;               // Retindrà l'ID del RA actiu per a la gestió de torns i checks
 let temporitzador;                  // Guardar la referència del setInterval del compte enrere
 let tempsRestant = 20;              // Segons de cortesia per a l'arribada de l'alumne
 let idDelTurnoActual = null;        // ID del torn actiu a la taula 'turnos'
@@ -59,6 +60,8 @@ async function carregarDadesPanell() {
             console.error("L'API ha retornat un error de control:", dades.error);
             return;
         }
+
+        if (dades.id_ra) idRaActiu = dades.id_ra;
 
         const textCadenaClau = `${dades.nom_modul} (${dades.asignatura}) ➔ 📖 Pràctica activa: ${dades.nom_practica_activa}`;
 
@@ -136,7 +139,10 @@ async function toggleCua() {
         await fetch('api_gestion.php?accio=toggle_cua', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ estat: nouEstat })
+            body: JSON.stringify({
+                estat: nouEstat,
+                id_ra: idRaActiu
+            })
         });
 
         const resultat = await resposta.json();
